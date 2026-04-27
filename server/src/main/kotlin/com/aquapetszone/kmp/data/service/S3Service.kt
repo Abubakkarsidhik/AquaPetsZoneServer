@@ -15,9 +15,35 @@ object S3Service {
      * Throws exception if all attempts fail.
      * @param key S3 object key (e.g., "folder/filename.ext")
      */
-    val dotenv by lazy { dotenv() }
-    private val BUCKET = dotenv["AWS_S3_BUCKET"]
+    private val dotenv by lazy {
+        dotenv {
+            ignoreIfMissing = true
+        }
+    }
 
+    private fun env(key: String): String? {
+        return System.getenv(key) ?: dotenv[key]
+    }
+
+    private val BUCKET = env("AWS_S3_BUCKET")
+        ?: throw Exception("AWS_S3_BUCKET not set")
+
+    private val s3 by lazy {
+        val accessKey = env("AWS_ACCESS_KEY_ID")
+            ?: throw Exception("AWS_ACCESS_KEY_ID not set")
+
+        val secretKey = env("AWS_SECRET_ACCESS_KEY")
+            ?: throw Exception("AWS_SECRET_ACCESS_KEY not set")
+
+        S3Client.builder()
+            .region(Region.AP_SOUTH_1)
+            .credentialsProvider(
+                StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(accessKey, secretKey)
+                )
+            )
+            .build()
+    }
 
 
     fun deleteObject(key: String) {
@@ -46,19 +72,7 @@ object S3Service {
         // Should not reach here
         throw lastException ?: Exception("Unknown error deleting S3 object: $key")
     }
-    private val s3 by lazy {
-        // Use dotenv to load env vars if not already loaded
-        val accessKey = dotenv["AWS_ACCESS_KEY_ID"] ?: throw IllegalStateException("AWS_ACCESS_KEY_ID not set in environment. Make sure .env is loaded in main() before using S3Service.")
-        val secretKey = dotenv["AWS_SECRET_ACCESS_KEY"] ?: throw IllegalStateException("AWS_SECRET_ACCESS_KEY not set in environment. Make sure .env is loaded in main() before using S3Service.")
-        S3Client.builder()
-            .region(Region.AP_SOUTH_1)
-            .credentialsProvider(
-                StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(accessKey, secretKey)
-                )
-            )
-            .build()
-    }
+
 
     fun upload(bytes: ByteArray, fileName: String, extension: String, contentType: String, folder: String): String {
 
