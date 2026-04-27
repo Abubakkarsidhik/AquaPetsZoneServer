@@ -1,4 +1,4 @@
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
@@ -6,4 +6,6 @@ COPY . .
 
 RUN ./gradlew build
 
-CMD ["java", "-jar", "build/libs/server.jar"]
+EXPOSE 8080
+
+CMD ["sh", "-c", "java -jar build/libs/server.jar"]
