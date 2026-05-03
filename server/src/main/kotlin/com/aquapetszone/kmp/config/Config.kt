@@ -59,6 +59,7 @@ enum class OnboardingKey {
     REVIEW
 }
 
+@Serializable
 enum class SEND_OTP_TYPE {
     PHONE_NO,
     EMAIL_ID

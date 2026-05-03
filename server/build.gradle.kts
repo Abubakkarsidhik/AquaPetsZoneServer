@@ -29,7 +29,7 @@ dependencies {
     implementation(libs.ktor.cors)
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.kotlinx.serialization.json)
-
+    implementation("io.ktor:ktor-client-cio:3.4.0")
     implementation(libs.ktor.json)
     implementation(libs.kmongo)
     implementation(libs.kmongo.coroutine)

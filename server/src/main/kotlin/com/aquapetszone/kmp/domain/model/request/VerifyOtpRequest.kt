@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class VerifyOtpRequest(
-    val sessionInfo: String,
+    val mobile: String,
     val otp: String,
-    val type: SEND_OTP_TYPE
+    val sessionInfo: String? = null
 )

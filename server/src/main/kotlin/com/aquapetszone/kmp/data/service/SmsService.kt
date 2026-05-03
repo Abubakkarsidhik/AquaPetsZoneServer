@@ -2,22 +2,19 @@ package com.aquapetszone.kmp.data.service
 
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.*
 
-// TODO hide key
-private const val FIREBASE_API_KEY = "AIzaSyAbhZDDihTpJXY0MEoLuSlfQL7GVygvq2I"
+private const val FIREBASE_API_KEY = "AIzaSyD_qzELhiC7OaSP49MM6C5Djpfz0xiRC-o"
 
 object SmsService {
 
-
-    private val client = HttpClient {
+    private val client = HttpClient(CIO) {
 
         install(ContentNegotiation) {
             json(
@@ -31,35 +28,46 @@ object SmsService {
         }
     }
 
-    suspend fun sendOtp(phone: String, recaptchaToken: String): String {
+    suspend fun sendOtp(
+        phone: String,
+        recaptchaToken: String
+    ): String {
 
-        val response: HttpResponse = client.post(
+        val formattedPhone = formatIndianPhone(phone)
+
+        val response = client.post(
             "https://identitytoolkit.googleapis.com/v1/accounts:sendVerificationCode?key=$FIREBASE_API_KEY"
         ) {
 
             contentType(ContentType.Application.Json)
 
             setBody(
-                mapOf(
-                    "phoneNumber" to phone,
-                    "recaptchaToken" to recaptchaToken
-                )
+                buildJsonObject {
+                    put("phoneNumber", formattedPhone)
+                    put("recaptchaToken", recaptchaToken)
+                }
             )
         }
 
-        val bodyText = response.bodyAsText()
+        val body = response.bodyAsText()
+
+        println(body)
 
         if (!response.status.isSuccess()) {
-            throw Exception("Firebase error: $bodyText")
+            throw Exception(body)
         }
 
-        val json = Json.parseToJsonElement(bodyText).jsonObject
-
-        return json["sessionInfo"]?.jsonPrimitive?.content
-            ?: throw Exception("sessionInfo missing: $bodyText")
+        return Json.parseToJsonElement(body)
+            .jsonObject["sessionInfo"]
+            ?.jsonPrimitive
+            ?.content
+            ?: throw Exception("sessionInfo missing")
     }
 
-    suspend fun verifyOtp(sessionInfo: String, otp: String): String {
+    suspend fun verifyOtp(
+        sessionInfo: String,
+        otp: String
+    ): String {
 
         val response: HttpResponse = client.post(
             "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPhoneNumber?key=$FIREBASE_API_KEY"
@@ -75,15 +83,33 @@ object SmsService {
             )
         }
 
-        val bodyText = response.bodyAsText()
+        val body = response.bodyAsText()
 
         if (!response.status.isSuccess()) {
-            throw Exception("Firebase error: $bodyText")
+            throw Exception(body)
         }
 
-        val json = Json.parseToJsonElement(bodyText).jsonObject
+        val json = Json.parseToJsonElement(body).jsonObject
 
-        return json["idToken"]?.jsonPrimitive?.content
-            ?: throw Exception("idToken missing: $bodyText")
+        return json["idToken"]
+            ?.jsonPrimitive
+            ?.content
+            ?: throw Exception("idToken missing")
     }
+
+    private fun formatIndianPhone(phone: String): String {
+
+        val cleaned = phone
+            .replace(" ", "")
+            .replace("-", "")
+            .trim()
+
+        return when {
+            cleaned.startsWith("+91") -> cleaned
+            cleaned.startsWith("91") -> "+$cleaned"
+            cleaned.length == 10 -> "+91$cleaned"
+            else -> throw Exception("Invalid mobile number format")
+        }
+    }
+
 }
