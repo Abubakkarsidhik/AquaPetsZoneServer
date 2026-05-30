@@ -1,0 +1,52 @@
+# AquaPetsZone API — Render Blueprint
+# Repo: https://github.com/Abubakkarsidhik/AquaPetsZoneServer
+#
+# Deploy: push this file to main, then in Render Dashboard → New → Blueprint
+# and connect the GitHub repo. Set secret env vars in the Dashboard before
+# the first deploy (values marked sync: false are not stored in git).
+
+services:
+  - type: web
+    name: aquapetszone-api
+    runtime: docker
+    region: singapore
+    plan: starter
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /test-db
+    envVars:
+      - key: PRODUCTION
+        value: "true"
+      - key: PORT
+        value: "8080"
+      - key: MONGO_URL_PROD
+        sync: false
+      - key: DB_NAME_PROD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ISSUER
+        value: aquapetszone
+      - key: AES_SECRET_KEY
+        generateValue: true
+      - key: AES_IV_KEY
+        generateValue: true
+      - key: AWS_S3_BUCKET
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: USE_MSG91_OTP
+        value: "true"
+      - key: MSG91_AUTH_KEY
+        sync: false
+      - key: MSG91_TEMPLATE_ID
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false

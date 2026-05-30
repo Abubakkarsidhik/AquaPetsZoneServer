@@ -38,6 +38,7 @@ data class ProductMongo(
     val rating: Rating? = null,
 
     val availability: String = "IN_STOCK",
+    val stockQuantity: Int? = 100,
     val badge: Badge? = null,
 
     // ── Selling Unit (flattened for Jackson/KMongo compatibility) ────

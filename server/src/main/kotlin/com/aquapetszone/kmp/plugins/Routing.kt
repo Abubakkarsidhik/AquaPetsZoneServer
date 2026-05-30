@@ -5,6 +5,7 @@ import com.aquapetszone.kmp.routes.imageRoutes
 import com.aquapetszone.kmp.routes.authRoutes
 import com.aquapetszone.kmp.routes.onboardingRoutes.onboardingRoute
 import com.aquapetszone.kmp.routes.productRoutes.productRoutes
+import com.aquapetszone.kmp.routes.paymentRoutes
 import com.aquapetszone.kmp.routes.webRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.response.respondText
@@ -19,7 +20,7 @@ fun Application.configureRouting() {
         imageRoutes()
         productRoutes()
         onboardingRoute()
-//        orderRoutes()
+        paymentRoutes()
         webRoutes()
 
 
