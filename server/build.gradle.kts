@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.ktor.logging)
     implementation(libs.ktor.negotiation)
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    implementation("com.google.firebase:firebase-admin:9.4.3")
 
 
     testImplementation(libs.ktor.serverTestHost)

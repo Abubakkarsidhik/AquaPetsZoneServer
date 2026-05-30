@@ -37,7 +37,8 @@ object JwtConfig {
      */
     fun generateAccessToken(
         userId: String,
-        role: String
+        role: String,
+        firebaseUid: String? = null
     ): String {
         val now = System.currentTimeMillis()
 
@@ -45,14 +46,19 @@ object JwtConfig {
         println("USER ID: $userId | ROLE: $role")
         println("EXPIRES AT: ${Date(now + ACCESS_VALIDITY_MS)}")
 
-        return JWT.create()
+        var builder = JWT.create()
             .withIssuer(issuer)
             .withClaim("userId", userId)
             .withClaim("role", role)
             .withClaim("type", "access")
             .withIssuedAt(Date(now))
             .withExpiresAt(Date(now + ACCESS_VALIDITY_MS))
-            .sign(algorithm)
+
+        if (firebaseUid != null) {
+            builder = builder.withClaim("firebaseUid", firebaseUid)
+        }
+
+        return builder.sign(algorithm)
     }
 
     /**
@@ -60,7 +66,8 @@ object JwtConfig {
      */
     fun generateRefreshToken(
         userId: String,
-        role: String
+        role: String,
+        firebaseUid: String? = null
     ): String {
         val now = System.currentTimeMillis()
 
@@ -68,21 +75,26 @@ object JwtConfig {
         println("USER ID: $userId | ROLE: $role")
         println("EXPIRES AT: ${Date(now + REFRESH_VALIDITY_MS)}")
 
-        return JWT.create()
+        var builder = JWT.create()
             .withIssuer(issuer)
             .withClaim("userId", userId)
             .withClaim("role", role)
             .withClaim("type", "refresh")
             .withIssuedAt(Date(now))
             .withExpiresAt(Date(now + REFRESH_VALIDITY_MS))
-            .sign(algorithm)
+
+        if (firebaseUid != null) {
+            builder = builder.withClaim("firebaseUid", firebaseUid)
+        }
+
+        return builder.sign(algorithm)
     }
 
     /**
      * Backward-compatible wrapper — generates an access token.
      */
-    fun generateToken(userId: String, role: String): String =
-        generateAccessToken(userId, role)
+    fun generateToken(userId: String, role: String, firebaseUid: String? = null): String =
+        generateAccessToken(userId, role, firebaseUid)
 
     /**
      * Standard verifier — rejects expired tokens.

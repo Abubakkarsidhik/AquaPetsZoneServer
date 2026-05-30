@@ -1,6 +1,9 @@
 package com.aquapetszone.kmp
 
+import com.aquapetszone.kmp.config.FirebaseConfig
+import com.aquapetszone.kmp.domain.repository.user.ServerUserRepositoryImpl
 import com.aquapetszone.kmp.plugins.configureCors
+import kotlinx.coroutines.runBlocking
 import com.aquapetszone.kmp.plugins.configureRouting
 import com.aquapetszone.kmp.plugins.configureSecurity
 import com.aquapetszone.kmp.plugins.configureSerialization
@@ -14,6 +17,10 @@ import io.ktor.server.plugins.cors.routing.CORS
 
 
 fun main() {
+    runCatching { FirebaseConfig.initialize() }
+        .onFailure { println("Firebase init skipped: ${it.message}") }
+    runBlocking { ServerUserRepositoryImpl().ensureIndexes() }
+
     embeddedServer(Netty, port = SERVER_PORT, host = "0.0.0.0", module = {
         configureCors()
         configureSerialization()

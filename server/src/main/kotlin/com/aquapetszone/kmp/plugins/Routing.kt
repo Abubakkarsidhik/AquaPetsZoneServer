@@ -3,6 +3,7 @@ package com.aquapetszone.kmp.plugins
 import com.aquapetszone.kmp.data.database.MongoFactory
 import com.aquapetszone.kmp.routes.imageRoutes
 import com.aquapetszone.kmp.routes.authRoutes
+import com.aquapetszone.kmp.routes.firebaseAuthRoutes
 import com.aquapetszone.kmp.routes.onboardingRoutes.onboardingRoute
 import com.aquapetszone.kmp.routes.productRoutes.productRoutes
 import com.aquapetszone.kmp.routes.paymentRoutes
@@ -17,6 +18,7 @@ fun Application.configureRouting() {
 //        module()
 //        authRoutes()
         authRoutes()
+        firebaseAuthRoutes()
         imageRoutes()
         productRoutes()
         onboardingRoute()

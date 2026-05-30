@@ -67,6 +67,9 @@ fun JWTPrincipal.userId(): String =
 fun JWTPrincipal.role(): String =
     payload.getClaim("role").asString()
 
+fun JWTPrincipal.firebaseUid(): String? =
+    payload.getClaim("firebaseUid")?.asString()
+
 
 suspend fun ApplicationCall.handleError(e: Exception) {
     val message = e.message ?: "Unknown error"
